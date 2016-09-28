@@ -1,0 +1,1 @@
+A library for Elder Scrolls Online which implements the [Promises/A+](https://promisesaplus.com/) specification.
