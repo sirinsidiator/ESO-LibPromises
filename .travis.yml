@@ -1,0 +1,34 @@
+# .travis.yaml
+language: python
+sudo: true
+
+env:
+  - LUA="lua=5.1"
+
+before_install:
+  # install a newer cmake since at this time Travis only has version 2.8.7
+  - yes | sudo add-apt-repository ppa:kalakris/cmake
+  - sudo apt-get update -qq
+  # install lua
+  - pip install hererocks
+  - hererocks lua_install -r^ --$LUA
+  - export PATH=$PATH:$PWD/lua_install/bin
+
+install:
+  - sudo apt-get install cmake
+  - sudo apt-get install libev-dev
+  - luarocks install copas
+  - luarocks install lua-ev scm --server=http://luarocks.org/repositories/rocks-scm/
+  - luarocks install moonscript
+  # ##### busted 1.11 doesn't work with lua_cliargs 3
+  - luarocks install lua_cliargs 2.5
+  # ##### busted 2.0 doesn't support async tests yet
+  - luarocks install busted 1.11.1-2
+  # ##### install luv for simulating setTimeout/zo_callLater
+  - luarocks install luv
+
+before_script:
+  - cd test
+
+script:
+  - busted_bootstrap --pattern=2_.+_.+%.lua --verbose .

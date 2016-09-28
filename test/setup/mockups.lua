@@ -1,4 +1,3 @@
-package.path = package.path .. ';..\\src\\?.lua'
 require 'esoui/baseobject'
 local uv = require('luv')
 
