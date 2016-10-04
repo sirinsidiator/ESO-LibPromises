@@ -2,6 +2,11 @@
 language: python
 sudo: true
 
+cache:
+  pip: true
+  directories:
+  - lua_install
+
 env:
   - LUA="lua=5.1"
 
