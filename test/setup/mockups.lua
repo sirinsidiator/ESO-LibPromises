@@ -53,6 +53,10 @@ function setTimeout(func, timeout)
 end
 zo_callLater = setTimeout
 
+local isRunning = false
 function resolveTimeouts()
+    if(isRunning) then return end
+    isRunning = true
     uv.run()
+    isRunning = false
 end

@@ -56,7 +56,7 @@ function Resolve(promise, x)
     if(promise == x) then promise:Reject("TypeError: Tried to pass promise to itself") return end
     if(IsPromise(x)) then
         x:Then(function(value)
-            promise:Resolve(value)
+            Resolve(promise, value)
         end, function(reason)
             promise:Reject(reason)
         end)
@@ -106,12 +106,19 @@ local function SanitizeError(err)
     return err
 end
 
+local function GetNumArgsAndArgs(...)
+    return select("#", ...), ...
+end
+
 local function WrapCall(callback, promise, nextPromise)
     return function()
-        local success, x = pcall(callback, promise.value)
+        local count, x -- we need to distinguish between nil and no return value
+        local success, e = pcall(function() 
+            count, x = GetNumArgsAndArgs(callback(promise.value))
+        end)
         if(not success) then
-            nextPromise:Reject(SanitizeError(x))
-        elseif(x) then
+            nextPromise:Reject(SanitizeError(e))
+        elseif(count > 0) then
             Resolve(nextPromise, x)
         end
     end
@@ -130,8 +137,11 @@ local function FlushAllCallbacks(self)
     end
 end
 
+local next = 1
 function Promise:New()
     local obj = ZO_Object.New(self)
+    obj.name = string.format("Promise%d", next)
+    next = next + 1 
     obj.state = STATE_PENDING
     obj.fulfilled = {}
     obj.rejected = {}
@@ -150,8 +160,7 @@ function Promise:Then(OnFulfilled, OnRejected)
     if(IsCallable(OnRejected)) then
         self.rejected[#self.rejected + 1] = WrapCall(OnRejected, self, nextPromise)
     else
-        self.rejected[#self.rejected + 1] = function(value) 
-         nextPromise:Reject(value) end
+        self.rejected[#self.rejected + 1] = function(value) nextPromise:Reject(value) end
     end
 
     if(self.state ~= STATE_PENDING) then

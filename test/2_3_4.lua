@@ -22,22 +22,22 @@ describe("2.3.4: If `x` is not an object or function, fulfill `promise` with `x`
                     done()
                 end)
             end)
---            testRejected(dummy, function(promise1, done)
---                local promise2 = promise1:Then(nil, function()
---                    return expectedValue
---                end)
---
---                promise2:Then(function(actualValue)
---                    assert.equal(actualValue, expectedValue)
---                    done()
---                end)
---            end)
+            testRejected(dummy, function(promise1, done)
+                local promise2 = promise1:Then(nil, function()
+                    return expectedValue
+                end)
+
+                promise2:Then(function(actualValue)
+                    assert.equal(actualValue, expectedValue)
+                    done()
+                end)
+            end)
         end)
     end
 
     testValue(nil, "`nil`")
---    testValue(false, "`false`")
---    testValue(true, "`true`")
---    testValue(0, "`0`")
---    testValue("test", "'test'")
+    testValue(false, "`false`")
+    testValue(true, "`true`")
+    testValue(0, "`0`")
+    testValue("test", "'test'")
 end)

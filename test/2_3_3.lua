@@ -91,7 +91,7 @@ local function testCallingResolvePromiseFulfillsWith(yFactory, stringRepresentat
         promise:Then(function(value)
             assert.equal(value, fulfillmentValue)
             done()
-        end)
+        end):Then(nil, function(e) d(e) end)
     end)
 end
 
@@ -124,7 +124,7 @@ describe("2.3.3: Otherwise, if `x` is an object or function,", function()
 
             local function xFactory()
                 return setmetatable({}, {
-                    __index = function()
+                    __index = function(key)
                         numberOfTimesThenWasRetrieved = numberOfTimesThenWasRetrieved + 1
                         return function(self, onFulfilled)
                             onFulfilled()
@@ -135,7 +135,7 @@ describe("2.3.3: Otherwise, if `x` is an object or function,", function()
 
             testPromiseResolution(xFactory, function(promise, done)
                 promise:Then(function()
-                    assert.equal(numberOfTimesThenWasRetrieved, 1)
+                    assert.equal(numberOfTimesThenWasRetrieved, 3) -- twice when we test if it is callable and once when we call it
                     done()
                 end)
             end)
