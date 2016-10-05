@@ -9,13 +9,10 @@ else
     # install a newer cmake since at this time Travis only has version 2.8.7
     yes | sudo add-apt-repository ppa:kalakris/cmake
     sudo apt-get update -qq
-    # install lua
-    pip install hererocks
-    hererocks lua_install -r^ --$LUA
-    export PATH=$PATH:$PWD/lua_install/bin
-    # install luarocks
     sudo apt-get install cmake
+    # install libev
     sudo apt-get install libev-dev
+    # install luarocks
     luarocks install copas
     luarocks install lua-ev scm --server=http://luarocks.org/repositories/rocks-scm/
     luarocks install moonscript
