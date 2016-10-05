@@ -10,15 +10,6 @@ cache:
 env:
   - LUA="lua=5.1"
 
-before_install:
-  # install a newer cmake since at this time Travis only has version 2.8.7
-  - yes | sudo add-apt-repository ppa:kalakris/cmake
-  - sudo apt-get update -qq
-  # install lua
-  - pip install hererocks
-  - hererocks lua_install -r^ --$LUA
-  - export PATH=$PATH:$PWD/lua_install/bin
-
 install:
   - build/install.sh
 
