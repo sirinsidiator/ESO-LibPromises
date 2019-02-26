@@ -6,10 +6,6 @@ if hash busted_bootstrap 2>/dev/null; then
     echo "Using cached busted"
 else
     echo "busted not found in the cache, install dependencies anew..."
-    # install a newer cmake since at this time Travis only has version 2.8.7
-    yes | sudo add-apt-repository ppa:kalakris/cmake
-    sudo apt-get update -qq
-    sudo apt-get install cmake
     # install libev
     sudo apt-get install libev-dev
     # install luarocks
