@@ -1,7 +1,5 @@
-package.path = package.path .. ';../src/LibPromises/?.lua'
-package.path = package.path .. ';../src/LibStub/?.lua'
+package.path = package.path .. ';../src/?.lua'
 require 'setup/mockups'
-require 'LibStub'
 require 'LibPromises'
 
 require 'setup/adapter'

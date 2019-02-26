@@ -1,4 +1,4 @@
-local Promise = LibStub("LibPromises")
+local Promise = LibPromises
 
 function resolved(value)
     local p = Promise:New()

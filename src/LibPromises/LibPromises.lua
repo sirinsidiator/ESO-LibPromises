@@ -1,13 +1,9 @@
 local LIB_IDENTIFIER = "LibPromises"
-local lib = LibStub:NewLibrary(LIB_IDENTIFIER, 999) -- only for test purposes. releases will get a smaller number
 
-if not lib then
-    return	-- already loaded and no upgrade necessary
-end
+assert(not _G[LIB_IDENTIFIER], LIB_IDENTIFIER .. " is already loaded")
 
-local function Log(message, ...)
-    df("[%s] %s", LIB_IDENTIFIER, message:format(...))
-end
+local lib = {}
+_G[LIB_IDENTIFIER] = lib
 
 local STATE_PENDING = 1
 local STATE_FULFILLED = 2
@@ -113,7 +109,7 @@ end
 local function WrapCall(callback, promise, nextPromise)
     return function()
         local count, x -- we need to distinguish between nil and no return value
-        local success, e = pcall(function() 
+        local success, e = pcall(function()
             count, x = GetNumArgsAndArgs(callback(promise.value))
         end)
         if(not success) then
@@ -141,7 +137,7 @@ local next = 1
 function Promise:New()
     local obj = ZO_Object.New(self)
     obj.name = string.format("Promise%d", next)
-    next = next + 1 
+    next = next + 1
     obj.state = STATE_PENDING
     obj.fulfilled = {}
     obj.rejected = {}
@@ -179,7 +175,7 @@ function Promise:Resolve(value)
 end
 
 function Promise:Reject(reason)
-    if(self.state == STATE_PENDING) then 
+    if(self.state == STATE_PENDING) then
         self.value = reason
         self.state = STATE_REJECTED
         FlushAllCallbacks(self)
@@ -191,19 +187,9 @@ function Promise:ToString(name)
     local stateString = STATE_STRING[self.state]
     local numFulfilled = #self.fulfilled
     local numRejected = #self.rejected
-    return string.format("%s(%s, #f: %d, #r: %d)", name, stateString, numFulfilled, numRejected) 
+    return string.format("%s(%s, #f: %d, #r: %d)", name, stateString, numFulfilled, numRejected)
 end
 
 function lib:New()
     return Promise:New()
 end
-
-local function Unload()
-end
-
-local function Load()
-    lib.Unload = Unload
-end
-
-if(lib.Unload) then lib.Unload() end
-Load()
