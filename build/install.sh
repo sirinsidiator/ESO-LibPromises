@@ -6,6 +6,9 @@ if hash busted_bootstrap 2>/dev/null; then
     echo "Using cached busted"
 else
     echo "busted not found in the cache, install dependencies anew..."
+    sudo apt-get update -qq
+    # install libev
+    sudo apt-get install libev-dev
     # install luarocks
     luarocks install copas
     luarocks install lua-ev scm --server=http://luarocks.org/repositories/rocks-scm/
