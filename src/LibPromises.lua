@@ -2,7 +2,20 @@ local LIB_IDENTIFIER = "LibPromises"
 
 assert(not _G[LIB_IDENTIFIER], LIB_IDENTIFIER .. " is already loaded")
 
-local lib = {}
+local lib = {
+    SetUnhandledRejectionHandler = function(self, handler)
+        self.unhandledRejectionHandler = handler
+    end
+}
+
+if LibDebugLogger then
+    local logger = LibDebugLogger(LIB_IDENTIFIER)
+    lib.logger = logger
+    lib:SetUnhandledRejectionHandler(function(promise)
+        logger:Warn("Unhandled promise rejection:", promise.value)
+    end)
+end
+
 _G[LIB_IDENTIFIER] = lib
 
 local STATE_PENDING = 1
@@ -178,6 +191,9 @@ function Promise:Reject(reason)
     if(self.state == STATE_PENDING) then
         self.value = reason
         self.state = STATE_REJECTED
+        if lib.unhandledRejectionHandler and #self.rejected == 0 then
+            lib.unhandledRejectionHandler(self)
+        end
         FlushAllCallbacks(self)
     end
 end
