@@ -133,10 +133,33 @@ local function WrapCall(callback, promise, nextPromise)
     end
 end
 
+local function DoReportUnhandledRejectionIfNeeded(self)
+    self.unhandledRejectionHandler = nil
+    if lib.unhandledRejectionHandler and #self.rejected == 0 then
+        lib.unhandledRejectionHandler(self)
+    end
+end
+
+local function RequestReportUnhandledRejectionIfNeeded(self)
+    if lib.unhandledRejectionHandler then
+        self.unhandledRejectionHandler = zo_callLater(function()
+            DoReportUnhandledRejectionIfNeeded(self)
+        end, 0)
+    end
+end
+
+local function ClearReportUnhandledRejectionIfNeeded(self)
+    if self.unhandledRejectionHandler and #self.rejected > 0 then
+        zo_removeCallLater(self.unhandledRejectionHandler)
+        self.unhandledRejectionHandler = nil
+    end
+end
+
 local function FlushAllCallbacks(self)
     if(self.state == STATE_FULFILLED) then
         ExecuteAllLater(self.fulfilled, self.value)
     elseif(self.state == STATE_REJECTED) then
+        ClearReportUnhandledRejectionIfNeeded(self)
         ExecuteAllLater(self.rejected, self.value)
     end
 
@@ -191,9 +214,7 @@ function Promise:Reject(reason)
     if(self.state == STATE_PENDING) then
         self.value = reason
         self.state = STATE_REJECTED
-        if lib.unhandledRejectionHandler and #self.rejected == 0 then
-            lib.unhandledRejectionHandler(self)
-        end
+        RequestReportUnhandledRejectionIfNeeded(self)
         FlushAllCallbacks(self)
     end
 end
