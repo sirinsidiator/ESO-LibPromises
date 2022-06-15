@@ -1,3 +1,12 @@
+function zo_mixin(object, ...)
+    for i = 1, select("#", ...) do
+        local source = select(i, ...)
+        for k,v in pairs(source) do
+            object[k] = v
+        end
+    end
+end
+
 require 'esoui/baseobject'
 local uv = require('luv')
 
@@ -50,13 +59,36 @@ function setTimeout(func, timeout)
         timer:close()
         func()
     end)
+    return timer
 end
-zo_callLater = setTimeout
+
+local ZO_CallLaterId = 1
+local timers = {}
+function zo_callLater(func, ms)
+    local id = ZO_CallLaterId
+    local name = "CallLaterFunction"..id
+    ZO_CallLaterId = ZO_CallLaterId + 1
+
+    timers[name] = setTimeout(function()
+        timers[name] = nil
+        func(id)
+    end, ms)
+    return id
+end
+
+function zo_removeCallLater(id)
+    local name = "CallLaterFunction"..id
+    if timers[name] then
+        timers[name]:close()
+        timers[name] = nil
+    end
+end
 
 local isRunning = false
 function resolveTimeouts()
     if(isRunning) then return end
     isRunning = true
     uv.run()
+    timers = {}
     isRunning = false
 end
