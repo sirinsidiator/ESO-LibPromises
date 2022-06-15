@@ -4,6 +4,38 @@ local Promise = LibPromises
 local dummy = { dummy = "dummy" } -- we fulfill or reject with this when we don't intend to test against it
 
 describe("Custom: A promise for ESO", function()
+    specify("should survive metatable pollution", function(done)
+        local DummyClass = ZO_InitializingObject:Subclass()
+        getmetatable(DummyClass).__call = function() end
+
+        local Base = ZO_InitializingObject:Subclass()
+        local Other = Base:Subclass()
+        function Other:New(...)
+            return Base.New(self, ...)
+        end
+        function Other:A()
+            return self:B():Then(self.C)
+        end
+        function Other:B()
+            local promise = LibPromises:New()
+            setTimeout(function()
+                promise:Resolve(self)
+            end, 0)
+            return promise
+        end
+        function Other:C()
+            local promise = LibPromises:New()
+            promise:Resolve(self)
+            return promise
+        end
+
+        local obj = Other:New()
+        obj:A():Then(function() 
+            ZO_InitializingObject.__call = nil
+            done()
+        end)
+    end)
+
     describe("has to report unhandled promise rejections", function()
         specify("when it is rejected", function(done)
             local handler = spy.new(function(p)

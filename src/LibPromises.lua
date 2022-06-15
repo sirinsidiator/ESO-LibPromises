@@ -34,7 +34,7 @@ local function IsPromise(obj)
 end
 
 local function IsCallable(func)
-    return type(func) == "function" or type((getmetatable(func) or {}).__call) == "function"
+    return type(func) == "function" or type(rawget(getmetatable(func) or {}, "__call")) == "function"
 end
 
 local function IsThenable(table)
