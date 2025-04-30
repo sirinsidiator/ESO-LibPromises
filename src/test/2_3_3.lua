@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2025 sirinsidiator
+--
+-- SPDX-License-Identifier: Artistic-2.0
+
 if true or not Taneth then return end -- TODO implement before_each
 
 Taneth("LibPromises", function()
