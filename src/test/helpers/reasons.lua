@@ -1,3 +1,7 @@
+if not Taneth then return end
+local resolved = LibPromiseTest.resolved
+local rejected = LibPromiseTest.rejected
+   
 -- This module exports some valid rejection reason factories, keyed by human-readable versions of their names.
 
 local dummy = { dummy = "dummy" }
@@ -32,4 +36,4 @@ exports["a rejected promise"] = function()
     return rejected(dummy)
 end
 
-return exports
+LibPromiseTest.reasons = exports

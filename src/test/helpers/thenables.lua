@@ -1,3 +1,4 @@
+if not Taneth then return end
 local other = { other = "other" } -- a value we don't want to be strict equal to
 
 local exports = {}
